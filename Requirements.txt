@@ -1,0 +1,6 @@
+requests
+apache-airflow
+pandas
+boto3
+streamlit
+psycopg2-binary

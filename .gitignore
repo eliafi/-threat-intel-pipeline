@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs and temp files
+*.log
+*.env
+
+# IDE and system files
+.vscode/
+.cursor/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# OneDrive
+*.lnk
+~$*
