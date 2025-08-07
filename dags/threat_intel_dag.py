@@ -1,26 +1,29 @@
+# threat_intel_dag.py
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.models import Variable
 from datetime import datetime, timedelta
 from etl.fetch_otx import fetch_otx_pulses
 
-def run_fetch_otx():
-    api_key = 'YOUR_OTX_API_KEY'  # Use Airflow Variables or Secrets in production
+def run_fetch_otx(**kwargs):
+    api_key = Variable.get("OTX_API_KEY")  # Securely retrieved
     fetch_otx_pulses(api_key)
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 6, 1),
+    'start_date': datetime(2025, 8, 7),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
 dag = DAG(
-    'threat_intel_pipeline',
+    dag_id='threat_intel_pipeline',
     default_args=default_args,
     description='ETL pipeline for threat intelligence',
-    schedule_interval='@daily',
-    catchup=False
+    schedule=None,      # Runs only when manually triggered
+    catchup=False,
+    max_active_runs=1,
 )
 
 fetch_otx_task = PythonOperator(
@@ -28,5 +31,6 @@ fetch_otx_task = PythonOperator(
     python_callable=run_fetch_otx,
     dag=dag
 )
+
 
 fetch_otx_task

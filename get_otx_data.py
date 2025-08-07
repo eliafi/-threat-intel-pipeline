@@ -1,19 +1,12 @@
-from OTXv2 import OTXv2
-from OTXv2 import IndicatorTypes
-import os
+from OTXv2 import OTXv2, IndicatorTypes
 
-# Replace with your real API key
-API_KEY = "c1744de2515fae01d69f476fe1c16cc12c361ccf2f84179095cad7c2702dc00e"
+api_key = "c1744de2515fae01d69f476fe1c16cc12c361ccf2f84179095cad7c2702dc00e"
+otx = OTXv2(api_key)
 
-# Initialize client
-otx = OTXv2(API_KEY)
+indicator = "1.1.1.1"
+print(f"Querying OTX for indicator: {indicator}")
 
-# Example: Fetch latest pulses
-def get_latest_pulses():
-    pulses = otx.getall()
-    for pulse in pulses[:5]:  # just print the first 5 for brevity
-        print(f"Name: {pulse['name']}")
-        print(f"Description: {pulse['description']}\n")
+result = otx.get_indicator_details_full(IndicatorTypes.IPv4, indicator)
 
-if __name__ == "__main__":
-    get_latest_pulses()
+print("API call result:")
+print(result)
