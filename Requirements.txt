@@ -4,3 +4,5 @@ pandas
 boto3
 streamlit
 psycopg2-binary
+apache-airflow-providers-amazon
+OTXv2

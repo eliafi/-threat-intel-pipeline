@@ -3,6 +3,7 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from datetime import datetime, timedelta
 from etl.fetch_otx import fetch_otx_pulses
+from etl.upload_s3 import upload_to_s3, create_s3_bucket_if_not_exists
 import logging
 import json
 import pandas as pd
@@ -50,6 +51,32 @@ with DAG(
         logger.info(f"Transformation completed, processed file: {processed}")
         return processed
 
+    def upload_to_s3_task(processed_filename: str, **kwargs) -> str:
+        """Upload processed threat intelligence data to S3"""
+        logger.info(f"S3 upload task started for {processed_filename}")
+        
+        # Get S3 configuration from Airflow Variables (with defaults)
+        try:
+            bucket_name = Variable.get("S3_BUCKET_NAME", default_var="threat-intel-data-lake")
+            aws_conn_id = Variable.get("AWS_CONN_ID", default_var="aws_default")
+        except Exception as e:
+            logger.warning(f"Could not get S3 variables: {e}, using defaults")
+            bucket_name = "threat-intel-data-lake"
+            aws_conn_id = "aws_default"
+        
+        # Ensure bucket exists
+        create_s3_bucket_if_not_exists(bucket_name=bucket_name, aws_conn_id=aws_conn_id)
+        
+        # Upload file
+        s3_key = upload_to_s3(
+            processed_filename=processed_filename,
+            aws_conn_id=aws_conn_id,
+            bucket_name=bucket_name
+        )
+        
+        logger.info(f"Successfully uploaded to S3: s3://{bucket_name}/{s3_key}")
+        return s3_key
+
     fetch = PythonOperator(
         task_id='fetch_otx_data',
         python_callable=run_fetch_otx,
@@ -67,4 +94,14 @@ with DAG(
         op_args=['{{ ti.xcom_pull(task_ids="fetch_otx_data") }}'],
     )
 
-    fetch >> transform
+    upload_s3 = PythonOperator(
+        task_id='upload_to_s3',
+        python_callable=upload_to_s3_task,
+        execution_timeout=timedelta(minutes=10),
+        retries=2,
+        retry_delay=timedelta(minutes=2),
+        op_args=['{{ ti.xcom_pull(task_ids="transform_data") }}'],
+    )
+
+    # Define the workflow pipeline
+    fetch >> transform >> upload_s3
