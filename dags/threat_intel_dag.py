@@ -53,13 +53,17 @@ with DAG(
     fetch = PythonOperator(
         task_id='fetch_otx_data',
         python_callable=run_fetch_otx,
-        execution_timeout=timedelta(minutes=10),
+        execution_timeout=timedelta(minutes=20),  # Increased timeout
+        retries=2,  # Add retries for network issues
+        retry_delay=timedelta(minutes=2),
     )
 
     transform = PythonOperator(
         task_id='transform_data',
         python_callable=transform_task,
-        execution_timeout=timedelta(minutes=10),
+        execution_timeout=timedelta(minutes=15),  # Increased timeout
+        retries=1,
+        retry_delay=timedelta(minutes=1),
         op_args=['{{ ti.xcom_pull(task_ids="fetch_otx_data") }}'],
     )
 

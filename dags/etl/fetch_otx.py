@@ -4,9 +4,10 @@ import os
 from datetime import datetime
 from OTXv2 import OTXv2, InvalidAPIKey
 
-def fetch_otx_pulses(api_key, limit=10):
+def fetch_otx_pulses(api_key, limit=5):
     try:
         otx = OTXv2(api_key)
+        # Start with a smaller limit for faster execution
         pulses = otx.getall(limit=limit)  # Fetch subscribed pulses
     except InvalidAPIKey as e:
         raise ValueError("Invalid or missing OTX API key") from e
