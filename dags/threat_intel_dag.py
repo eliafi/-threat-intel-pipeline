@@ -28,7 +28,11 @@ with DAG(
 
     def run_fetch_otx(**kwargs):
         logger.info("Fetch task started")
-        api_key = Variable.get("OTX_API_KEY")
+        try:
+            api_key = Variable.get("OTX_API_KEY")
+        except KeyError:
+            logger.error("OTX_API_KEY variable not set")
+            raise ValueError("OTX_API_KEY variable must be set in Airflow Variables")
         file_name = fetch_otx_pulses(api_key)
         logger.info(f"Fetch task completed, file saved: {file_name}")
         return file_name

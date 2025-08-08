@@ -9,6 +9,11 @@ __pycache__/
 *.log
 *.env
 
+# Airflow specific
+logs/
+data/
+postgres-db-volume/
+
 # IDE and system files
 .vscode/
 .cursor/
