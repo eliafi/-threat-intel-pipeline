@@ -29,6 +29,8 @@ with DAG(
     def run_fetch_otx(**kwargs):
         logger.info("Fetch task started")
         try:
+
+
             api_key = Variable.get("OTX_API_KEY")
         except KeyError:
             logger.error("OTX_API_KEY variable not set")
@@ -39,12 +41,12 @@ with DAG(
 
     def transform_task(raw_filename: str, **kwargs) -> str:
         logger.info(f"Transform task started for {raw_filename}")
-        file_path = f'data/{raw_filename}'
+        file_path = f'/opt/airflow/data/{raw_filename}'
         with open(file_path) as f:
             data = json.load(f)
         df = pd.json_normalize(data.get('results', []))
         processed = raw_filename.replace('.json', '_processed.csv')
-        df.to_csv(f'data/{processed}', index=False)
+        df.to_csv(f'/opt/airflow/data/{processed}', index=False)
         logger.info(f"Transformation completed, processed file: {processed}")
         return processed
 
