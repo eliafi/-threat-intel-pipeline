@@ -53,9 +53,9 @@ with DAG(
     fetch = PythonOperator(
         task_id='fetch_otx_data',
         python_callable=run_fetch_otx,
-        execution_timeout=timedelta(minutes=20),  # Increased timeout
-        retries=2,  # Add retries for network issues
-        retry_delay=timedelta(minutes=2),
+        execution_timeout=timedelta(minutes=5),  # Much shorter timeout
+        retries=1,  # Reduced retries
+        retry_delay=timedelta(minutes=1),
     )
 
     transform = PythonOperator(
