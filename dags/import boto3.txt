@@ -1,0 +1,48 @@
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
+import os
+
+def test_aws_connection():
+    print("🔍 Testing AWS Connection for Threat Intel Pipeline")
+    print("=" * 50)
+    
+    # Your specific Access Key ID
+    access_key_id = "AKIATCKAP72HNHYMMMOI"
+    print(f"✅ Access Key ID: {access_key_id}")
+    print(f"🌍 Region: eu-north-1")
+    
+    try:
+        # Try to get credentials from Airflow connection
+        from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+        s3_hook = S3Hook(aws_conn_id='aws_default')
+        
+        # Test the connection
+        s3_client = s3_hook.get_conn()
+        
+        # List buckets to test connection
+        response = s3_client.list_buckets()
+        buckets = response.get('Buckets', [])
+        
+        print(f"✅ AWS Connection SUCCESSFUL!")
+        print(f"📊 Found {len(buckets)} S3 buckets in your account:")
+        
+        for bucket in buckets:
+            print(f"   - {bucket['Name']} (created: {bucket['CreationDate']})")
+            
+        return True
+        
+    except NoCredentialsError:
+        print("❌ AWS credentials not found or not configured properly")
+        print("💡 Please check your Airflow connection settings")
+        return False
+        
+    except ClientError as e:
+        print(f"❌ AWS Client Error: {e}")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
+
+if __name__ == "__main__":
+    test_aws_connection()

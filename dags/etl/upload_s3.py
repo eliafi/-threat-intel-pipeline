@@ -52,14 +52,14 @@ def upload_to_s3(processed_filename: str, aws_conn_id: str = 'aws_default', buck
         logger.error(f"Failed to upload {processed_filename} to S3: {str(e)}")
         raise
 
-def create_s3_bucket_if_not_exists(bucket_name: str, aws_conn_id: str = 'aws_default', region: str = 'us-east-1'):
+def create_s3_bucket_if_not_exists(bucket_name: str, aws_conn_id: str = 'aws_default', region: str = 'eu-north-1'):
     """
     Create S3 bucket if it doesn't exist
     
     Args:
         bucket_name: Name of the S3 bucket to create
         aws_conn_id: Airflow connection ID for AWS credentials
-        region: AWS region to create bucket in
+        region: AWS region to create bucket in (default: eu-north-1)
     """
     try:
         s3_hook = S3Hook(aws_conn_id=aws_conn_id)
